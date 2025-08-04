@@ -210,12 +210,14 @@ def display_top_restaurants(df):
             rating = row['평점']
             address = row['주소']
             photo_url = get_place_photo_url(row['photos'][0]['photo_reference'], google_key) if row.get('photos') else ""
-            reviews = get_reviews(row['place_id_google'], google_key, 1) if row.get('place_id_google') else []  # 🔧 수정
+            reviews = get_reviews(row['place_id_google'], google_key, 1) if row.get('place_id_google') else []
             review_html = render_reviews(reviews)
+            link = f"https://www.google.com/maps/place/?q=place_id:{row['place_id_google']}" if row.get('place_id_google') else "#"
+
             st.markdown(f"""
                 <div style='background:#f9f9f9; padding:10px; border-radius:10px; height:460px;'>
                     <div style='display:flex; justify-content:space-between;'>
-                        <b>{name}</b>
+                        <b>{name}</b> <a href='{link}' target='_blank'>🔗</a>
                     </div>
                     <img src='{photo_url}' style='width:100%; height:120px; object-fit:cover; border-radius:8px;'>
                     <div style='text-align:center; color:#f39c12;'>⭐ {rating}</div>
