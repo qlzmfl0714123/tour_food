@@ -12,12 +12,12 @@ import streamlit.components.v1 as components
 from dotenv import load_dotenv
 from math import radians, sin, cos, sqrt, atan2
 
-# 🔧 환경 변수 로드
+# 환경 변수 로드
 load_dotenv()
 google_key = os.getenv("Google_key")
 kakao_key = os.getenv("KAKAO_KEY")
 
-# ✅ 좌표 거리 계산
+# 좌표 거리 계산
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371e3
     phi1, phi2 = radians(lat1), radians(lat2)
@@ -26,14 +26,14 @@ def haversine(lat1, lon1, lat2, lon2):
     a = sin(dphi/2)**2 + cos(phi1)*cos(phi2)*sin(dlambda/2)**2
     return 2 * R * atan2(sqrt(a), sqrt(1-a))
 
-# ✅ 구글 Place Details API → 전화번호 가져오기
+# 구글 Place Details API → 전화번호 가져오기
 def get_place_details(place_id, api_key):
     url = "https://maps.googleapis.com/maps/api/place/details/json"
     params = {"place_id": place_id, "fields": "name,formatted_address,formatted_phone_number", "language": "ko", "key": api_key}
     res = requests.get(url, params=params).json()
     return res.get("result", {})
 
-# ✅ Kakao place_id 가져오기
+# Kakao place_id 가져오기
 def get_kakao_place_id(name, lat, lng, kakao_key, address="", phone=None):
     url = "https://dapi.kakao.com/v2/local/search/keyword.json"
     headers = {"Authorization": f"KakaoAK {kakao_key}"}
@@ -74,14 +74,14 @@ def get_kakao_place_id(name, lat, lng, kakao_key, address="", phone=None):
 
     return best_doc["id"] if best_doc else None
 
-# ✅ 관광지 검색
+# 관광지 검색
 def search_places(query, api_key):
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     params = {'query': f"{query} 관광지", 'language': 'ko', 'key': api_key}
     res = requests.get(url, params=params).json()
     return [p for p in res.get('results', []) if p.get('user_ratings_total', 0) >= 50]
 
-# ✅ 위도/경도 조회
+# 위도/경도 조회
 def get_lat_lng(address, api_key):
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {'address': address, 'language': 'ko', 'key': api_key}
@@ -91,11 +91,11 @@ def get_lat_lng(address, api_key):
         return loc['lat'], loc['lng']
     return None, None
 
-# ✅ 사진 URL
+# 사진 URL
 def get_place_photo_url(photo_reference, api_key, maxwidth=400):
     return f"https://maps.googleapis.com/maps/api/place/photo?maxwidth={maxwidth}&photoreference={photo_reference}&key={api_key}"
 
-# ✅ 리뷰 여러 개 가져오기
+# 리뷰 여러 개 가져오기
 def get_reviews(place_id, api_key, max_reviews=3):
     url = "https://maps.googleapis.com/maps/api/place/details/json"
     params = {'place_id': place_id, 'fields': 'review', 'language': 'ko', 'key': api_key}
@@ -106,7 +106,7 @@ def get_reviews(place_id, api_key, max_reviews=3):
     except:
         return []
 
-# ✅ 리뷰 HTML 렌더링
+# 리뷰 HTML 렌더링
 def render_reviews(reviews):
     review_blocks = []
     for r in reviews:
@@ -118,7 +118,7 @@ def render_reviews(reviews):
         review_blocks.append(block)
     return "".join(review_blocks)
 
-# ✅ 맛집 검색 (전화번호 포함)
+# 맛집 검색 (전화번호 포함)
 def find_nearby_restaurants(lat, lng, api_key, radius=2000):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {'location': f'{lat},{lng}', 'radius': radius, 'type': 'restaurant', 'language': 'ko', 'key': api_key}
@@ -153,7 +153,7 @@ def find_nearby_restaurants(lat, lng, api_key, radius=2000):
         })
     return restaurants
 
-# ✅ 데이터 전처리
+# 데이터 전처리
 def preprocess_restaurant_data(df):
     df['이름'] = df['이름'].astype(str).str.strip()
     df = df[~df['이름'].isin(['-', '없음', '', None])]
@@ -171,7 +171,7 @@ def preprocess_restaurant_data(df):
     df = df.sort_values(by='평점', ascending=False)
     return df.reset_index(drop=True)
 
-# ✅ 관광지 카드 출력
+# 관광지 카드 출력
 def display_top_attractions(places):
     st.markdown("---")
     st.markdown("#### ⭐ 추천 관광지 Top 5")
@@ -198,7 +198,7 @@ def display_top_attractions(places):
                 </div>
             """, unsafe_allow_html=True)
 
-# ✅ 맛집 카드 출력
+# 맛집 카드 출력
 def display_top_restaurants(df):
     st.markdown("---")
     st.markdown("#### 🍽 추천 맛집 Top 5")
@@ -226,7 +226,7 @@ def display_top_restaurants(df):
                 </div>
             """, unsafe_allow_html=True)
 
-# ✅ 메인 실행
+# 메인 실행
 def main():
     st.set_page_config(layout="wide")
     st.title("📍 MatTour😋")
@@ -269,7 +269,7 @@ def main():
             if photo:
                 st.image(photo, use_column_width=True)
 
-        # 🔧 맛집 검색 반경 선택
+        # 맛집 검색 반경 선택
         radius = st.slider("맛집 검색 반경 (미터)", min_value=500, max_value=3000, value=2000, step=100)
 
         restaurants = find_nearby_restaurants(lat, lng, google_key, radius=radius)
@@ -278,7 +278,7 @@ def main():
 
         display_top_restaurants(df)
 
-        # 📂 CSV 다운로드
+        # CSV 다운로드
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📅 맛집 목록 CSV 다운로드", csv, f"{selected}_맛집목록.csv", "text/csv")
 
